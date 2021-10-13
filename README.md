@@ -99,13 +99,13 @@ Import the template ** Exportlegacy.json ** in Intersight:
 
 ![alt text](https://github.com/prathjan/images/blob/main/importleg.png?raw=true)
 
-Review the worflows imported. The workflows leverage IST/TFCB Git repos referenced in Step 2 here: https://developer.cisco.com/codeexchange/github/repo/prathjan/SvcAppdGlobal
+Review the worflows imported. The workflows leverage IST/TFCB Git repos referenced in Step 2 here: https://developer.cisco.com/codeexchange/github/repo/CiscoDevNet/AppDynamicsTomcatIST
 
 ![alt text](https://github.com/prathjan/images/blob/main/summry.png?raw=true)
 
 In short:
 
-SetupLegacyWorkspaces - Sets up the TFCB workspaces for AppdGlobal, AppdDb, AppdInfra, AppdSaas, AppdRbac, AppdApp, AppdLoad, AppdRemove. Details of what these workspaces are used for is enumerated here: https://developer.cisco.com/codeexchange/github/repo/prathjan/SvcAppdGlobal
+SetupLegacyWorkspaces - Sets up the TFCB workspaces for AppdGlobal, AppdDb, AppdInfra, AppdSaas, AppdRbac, AppdApp, AppdLoad, AppdRemove. Details of what these workspaces are used for is enumerated here: https://developer.cisco.com/codeexchange/github/repo/CiscoDevNet/AppDynamicsTomcatIST
 
 UpdateLegacyWorkspaceVars - Updates the variables for the TFCB workspaces
 
