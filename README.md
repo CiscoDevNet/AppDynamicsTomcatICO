@@ -1,53 +1,61 @@
-# Instrumenting legacy Tomcat application for AppDynamics business insights with Intersight Cloud Orchestrator (ICO)
+# Enabling AppDynamics Business Insights for a containerized Multi Service Kubernetes Application with Cisco Intersight Service for Terraform 
 ## Contents
         Use Case
 
         Pre-requisites
 
-        Intersight Target configuration for AppDynamics and on prem entities
+        Pre provisioning Steps
 
-        Provision infrastructure and deploy App services with AppDynamics instrumentation
+            Step 1: Intersight Target configuration for AppDynamics and on prem entities
 
-            Step 1: Importing ICO template for App Services Deployment and Instrumentation
+            Step 2: Setting up TFCB Workspaces
 
-            Step 2: Importing ICO template for App Services Load Generation
+            Step 3: Share variables with a Global Workspace
 
-            Step 3: Setup AppdGlobal Variables
+            Step 4: Prepping infrastructure & platform for application deployment
 
-            Step 4: Setup AppdInfra Variables
+        Interfacing with AppDynamics Controller API for Provisioning
 
-            Step 5: Setup AppdDb Variables
+            Step 5: Use RBAC script to create AppDynamics User and license rule
 
-            Step 6: Setup AppdSaas Variables
+            Step 6: Install k8s metrics server
 
-            Step 7: Setup AppdRbac Variables
+            Step 7: Install Kubernetes Cluster Agent
 
-            Step 8: Setup AppdApp Variables
+        Deploying App Services followed by automated instrumentation of AppDynamics agents
 
-            Step 9: Setup AppdLoad Variables
+            Step 8: Deploy application registry services
 
-            Step 10: Execute ICO template for App Services Deployment and Instrumentation
+            Step 9: Deploy application services
 
-            Step 11: Execute ICO template for App Services Load Generation
+        Generate Application Load
 
-            Step 12: View AppDynamics Insights
+        View Application Insights in AppDynamics and Intersight
 
-        Undeploy applications and deprovision infrastructure
+        Interfacing with AppDynamics Controller API for De-provisioning
+        
+            Step 10: Undeploy application services
+
+            Step 11: Undeploy AppDynamics Cluster Agent
+
+            Step 12: Deprovision k8s cluster
+
+        
 
 
 ### Use Case
 
-* As a DevOps and App developer, use ICO (Intersight Cloud Orchestrator) to enable existing Java/Tomcat Micro services for AppDynamics Insights
+* As a DevOps and App developer, use IST (Intersight Service for Terraform) to enable existing containerized k8s services for AppDynamics Insights
 
-* As DevOps and App Developer, use Intersight and AppDynamics to view app and infrastructure insights for Full Stack Observability
+* As DevOps and App Developer, use Intersight and AppDynamics to get app and infrastructure insights for Full Stack Observability
 
-This use case addresses the second flow in the below diagram:
+This use case addresses the first flow in the below diagram: 
 
-![alt text](https://github.com/prathjan/images/blob/main/AppdTomcat3.png?raw=true)
+![alt text](https://github.com/prathjan/images/blob/main/tomflow.png?raw=true)
 
 ### Pre-requisites
 
-1. The VM template that you provision in Step 5 below will have a user "root/Cisco123" provisioned with sudo privileges. Terraform scripts will use this user credentials to remotely run installation scripts in the VM.
+1. The VM template that you provision in Step 5 below will have a ubuntu image with user "root/Cisco123" provisioned with sudo privileges. Terraform scripts will use this user credentials to remotely run installation scripts in the VM.
 
 2. Sign up for a user account on Intersight.com. You will need Premier license as well as IWO license to complete this use case. 
 
@@ -57,9 +65,12 @@ This use case addresses the second flow in the below diagram:
 
 5. You will also need an account in AppDynamics SAAS Controller and should have the API Client ID and Client Secret.
 
-6. You will need to have some minimal knowledge of Intersight ICO. Please review tutorials on Youtube as well as the following: https://intersight.com/help/saas/features/orchestration/configure#intersight_cloud_orchestrator
 
-### Intersight Target configuration for AppDynamics and on prem entities
+7. You will create an account on containers.cisco.com and save the username and password. This is to download the docker images from the repo.
+
+![alt text](https://github.com/prathjan/images/blob/main/repo.png?raw=true)
+
+### Step 1: Intersight Target configuration for AppDynamics and on prem entities
 
 You will log into your Intersight account and create the following targets. Please refer to Intersight docs for details on how to create these Targets:
 
@@ -86,260 +97,269 @@ You will log into your Intersight account and create the following targets. Plea
 
             archivist.terraform.io
 
-### Provision infrastructure and deploy App services with AppDynamics instrumentation
+### Step 2: Setting up TFCB Workspaces
 
+1. 
 
-## Step 1: Importing ICO template for App Services Deployment and Instrumentation
+You will set up the following workspaces in TFCB and link to the VCS repos specified. 
 
-Clone the following github repo to get the ICO template:
+    tfiksglobal -> https://github.com/CiscoDevNet/tfiksglobal.git
 
-https://github.com/CiscoDevNet/IcoTemplates.git
+    tfikshost -> https://github.com/CiscoDevNet/tfikshost.git
 
-Import the template ** Exportlegacy.json ** in Intersight:
+    tfiksrbac -> https://github.com/CiscoDevNet/tfiksrbac.git
 
-![alt text](https://github.com/prathjan/images/blob/main/importleg.png?raw=true)
+    tfiksmetrics -> https://github.com/CiscoDevNet/tfiksmetrics.git
 
-Review the worflows imported. The workflows leverage IST/TFCB Git repos referenced in Step 2 here: https://developer.cisco.com/codeexchange/github/repo/CiscoDevNet/AppDynamicsTomcatIST
+    tfiksclagent -> https://github.com/CiscoDevNet/tfiksclagent.git
 
-![alt text](https://github.com/prathjan/images/blob/main/summry.png?raw=true)
+    tfiksteareg -> https://github.com/CiscoDevNet/tfiksteareg.git
 
-In short:
+    tfiksteaapp -> https://github.com/CiscoDevNet/tfiksteaapp.git
 
-SetupLegacyWorkspaces - Sets up the TFCB workspaces for AppdGlobal, AppdDb, AppdInfra, AppdSaas, AppdRbac, AppdApp, AppdLoad, AppdRemove. Details of what these workspaces are used for is enumerated here: https://developer.cisco.com/codeexchange/github/repo/CiscoDevNet/AppDynamicsTomcatIST
+    tfiksload -> https://github.com/CiscoDevNet/tfiksload.git 
 
-UpdateLegacyWorkspaceVars - Updates the variables for the TFCB workspaces
+    tfiksremove -> https://github.com/CiscoDevNet/tfiksremove.git
 
-InvokeLegacyPlansBase - Sets up the infrastructure components
 
-InvokeLegacyApps - Installs the Apps with AppDynamics instrumentation
+2. 
 
-## Step 2: Importing ICO template for App Services Load Generation
+You will set up the tfiksglobal workspace here. 
 
-Import the template ** ExportOnlyLoad.json ** in Intersight:
+You will set the following variables:
 
-![alt text](https://github.com/prathjan/images/blob/main/importload.png?raw=true)
+appport - eg. 30080	for the Teastore app
 
-Review the worflows imported:
+nbrapm - eg. 8	for the Teastore app
 
-![alt text](https://github.com/prathjan/images/blob/main/summry2.png?raw=true)
+nbrma - eg. 1	for the Teastore app
 
-This workflow spins up a VM and runs the application load generator.
+nbrsim - eg. 1	for the Teastore app
 
-## Step 3: Setup AppdGlobal Variables
+nbrnet - eg. 0 for the Teastore app
 
-In Intersight, you will set up the data specific to your environment in this step. 
+privatekey - your ssh private key that you used to provision your IKS cluster nodes
 
-Open Orchestration-> UpdateLegacyVars->Add AppdGlobal Variables Task:
+url - eg. https://devnet.saas.appdynamics.com
 
-![alt text](https://github.com/prathjan/images/blob/main/globalvar1.png?raw=true)
+account	- eg. devnet
 
-Add the following variables, the data will be as it applies to your own specific environment:
+namespaces	- eg. default
 
-vsphere_user - TBD(eg. administrator@vsphere.local)
+username	- eg. TBD, just enter a random str
 
-vm_memory - TBD(eg. 8192)
+password	- eg. TBD, just enter a random str
 
-nbrapm - TBD(eg. 8)
+dockeruser - your user name for containers.cisco.com
 
-nbrma - TBD(eg. 1)
+dockerpass - your password for containers.cisco.com
 
-nbrsim - TBD(eg. 1)
+storename - your store name. eg. IKSChaiStore
 
-nbrnet(eg. 0)
+Please also set this workspace to share its data with other workspaces in the organization by enabling Settings->General Settings->Share State Globally.
 
-vm_cpu - TBD(eg. 4)
+3. 
 
-vm_count - TBD (eg. 1)
+You will set up the tfikshost workspace here
+Set Execution Mode as Remote.Please also set this workspace to share its data with other workspaces in the organization by enabling Settings->General Settings->Share State Globally.
 
-appport - TBD(eg. 8085)
+You will set the following variables:
 
-vsphere_server - TBD(eg. 10.88.168.24)
+ikswsname - eg. sb_iks, which is the workspace that created the IKS k8s cluster
 
-datacenter - TBD(eg. Piso14-Lab)
+org - TFCB organization like "CiscoDevNet" or "Lab14"
 
-resource_pool - TBD(eg. ccmsuite)
+4. 
 
-datastore_name - TBD(eg. CCPHXM4)
+You will set up the tfiksrbac workspace here.
 
-network_name - TBD(eg. vm-network-6)
+Set Execution Mode as Agent and select the TF Cloud Agent that you have provisioned.
 
-template_name - TBD(eg. ubuntu-tmp)
+You will set the following variables:
 
-vm_folder - TBD(eg. terraform)
+ikswsname - eg. sb_iks, which is the workspace that created the IKS k8s cluster	
 
-vm_prefix - TBD(eg. terraform-)
+org - eg. Lab14, which is the TFCB organization	
+	
+hostwsname - tfikshost	
 
-vm_domain - TBD(eg. lab14.lc)
+globalwsname - tfiksglobal
 
-Open Orchestration-> UpdateLegacyVars->Add AppdGlobal Variables Sensitive Task:
+5. 
 
-![alt text](https://github.com/prathjan/images/blob/main/globalvar2.png?raw=true)
+You will set up the tfiksmetrics workspace here.
 
-Add the following variables, TBD's will be as it applies to your own specific environment:
+Set Execution Mode as Agent and select the TF Cloud Agent that you have provisioned.
 
-root_password - TBD
+You will set the following variables:
 
-mysql_pass - TBD
+org - eg. Lab14	
 
-vsphere_password - TBD
+ikswsname - eg. sb_iks	
 
-## Step 4: Setup AppdInfra Variables
 
-Open Orchestration-> UpdateLegacyVars->Add AppdInfra Variables Task:
+6. 
 
-![alt text](https://github.com/prathjan/images/blob/main/infra.png?raw=true)
+You will set up the tfiksclagent workspace here.
 
-Add the following variables, TBD's will be as it applies to your own specific environment:
+Set Execution Mode as Agent and select the TF Cloud Agent that you have provisioned.
 
-globalwsname - AppdGlobal
+You will set the following variables:
 
-dbvmwsname - AppdDb
+org - TFCB organization like "CiscoDevNet" or "Lab14"
 
-org - TBD (eg. Lab14)
+ikswsname - eg. sb_iks
 
-## Step 5: Setup AppdDb Variables
+globalwsname - tfiksglobal
 
-Open Orchestration-> UpdateLegacyVars->Add AppdDb Variables Task:
+hostwsname	- tfikshost
 
-![alt text](https://github.com/prathjan/images/blob/main/db.png?raw=true)
+7. 
 
-Add the following variables, TBD's will be as it applies to your own specific environment:
+You will set up the tfiksteareg workspace here.
 
-globalwsname - AppdGlobal
+Set Execution Mode as Agent and select the TF Cloud Agent that you have provisioned.
 
-org - TBD (eg. Lab14)
+You will set the following variables:
 
-## Step 6: Setup AppdSaas Variables
+org - TFCB organization like "CiscoDevNet" or "Lab14"
 
-Open Orchestration-> UpdateLegacyVars->Add AppdSaas Variables Task:
+ikswsname - eg. sb_iks
 
-![alt text](https://github.com/prathjan/images/blob/main/saas.png?raw=true)
 
-Add the following variables, TBD's will be as it applies to your own specific environment:
+8. 
 
-appname - TBD (eg. MasalaChaiStore)
+You will set up the tfiksteaapp workspace here.
 
-javaver - 21.5.0.32605
+Set Execution Mode as Agent and select the TF Cloud Agent that you have provisioned.
 
-infraver - 21.5.0.1784
+You will set the following variables:
 
-machinever - 21.6.0.3155
+org - TFCB organization like "CiscoDevNet" or "Lab14"
 
-ibmver - 21.6.0.32801
+ikswsname - eg. sb_iks
 
-url - TBD (eg. https://devnet.saas.appdynamics.com)
+9. 
 
-zerover - 21.6.0.232
+You will set up the tfiksload workspace here.
 
-Add the following sensitive variables, TBD's will be as it applies to your own specific environment:
+Set Execution Mode as Agent and select the TF Cloud Agent that you have provisioned.
 
-clientid - TBD
+You will set the following variables:
 
-clientsecret - TBD
+hostwsname	- tfikshost
 
-## Step 7: Setup AppdRbac Variables
+globalwsname - tfiksglobal
 
-Open Orchestration-> UpdateLegacyVars->Add AppdRbac Variables Task:
+org - TFCB organization like "CiscoDevNet" or "Lab14"
 
-![alt text](https://github.com/prathjan/images/blob/main/rbac.png?raw=true)
+trigcount - trigger count, set to some random number
 
-Add the following variables, TBD's will be as it applies to your own specific environment:
+10. 
 
-appvmwsname - AppdInfra
+You will set up the tfiksremove workspace here.
 
-saaswsname - AppdSaas
+Set Execution Mode as Agent and select the TF Cloud Agent that you have provisioned.
 
-globalwsname - AppdGlobal
+You will set the following variables:
 
-org - TBD (eg. Lab14)
+hostwsname	- tfikshost
 
-## Step 8: Setup AppdApp Variables
+globalwsname - tfiksglobal
 
-Open Orchestration-> UpdateLegacyVars->Add AppdApp Variables Task:
+org - TFCB organization like "CiscoDevNet" or "Lab14"
 
-![alt text](https://github.com/prathjan/images/blob/main/app.png?raw=true)
 
-Add the following variables, TBD's will be as it applies to your own specific environment:
+### Step 3: Share variables with a Global Workspace
 
-appvmwsname - AppdInfra
+Execute the tfiksglobal TFCB workspace to setup the global variables for other workspaces. Check for a sucessful Run before progressing to the next step.
+        
+### Step 4: Prepping infrastructure & platform for application deployment
 
-dbvmwsname - AppdDb
+In this step, you will set up the k8s cluster to host the application containers. You will follow the directions in this Code Exchange entry to create a IKS (Intersight Kubernetes Service) k8s cluster:
 
-globalwsname - AppdGlobal
+https://developer.cisco.com/codeexchange/github/repo/CiscoDevNet/intersight-tfb-iks
 
-org - TBD (eg. Lab14)
+Also, Execute the tfikshost TFCB workspace to setup the master node to run some of the utility functions needed in this deployment. This will be needed to access the application in Step 9.
 
-## Step 9: Setup AppdLoad Variables
+Check for a sucessful Run before progressing to the next step. Also, make a note of the master node IP address.
 
-![alt text](https://github.com/prathjan/images/blob/main/load.png?raw=true)
+### Step 5: Use RBAC script to create AppDynamics User and license rule
 
-Add the following variables, TBD's will be as it applies to your own specific environment:
+Execute the tfiksrbac TFCB workspace to set up the user/role/license rules in SAAS Controller. This will also create the k8s secret for the accesskey that will used to install the cluster agent in the cluster. Check for a sucessful Run before progressing to the next step.
 
-appvmwsname - AppdInfra
+### Step 6: Install k8s metrics server
 
-trigcount - 20
+Execute the tfiksmetrics TFCB workspace to set up the metrics server which the cluster agent will levarage in the next step. Check for a sucessful Run before progressing to the next step.
 
-globalwsname - AppdGlobal
+### Step 7: Install Kubernetes Cluster Agent
 
-org - TBD (eg. Lab14)
+Execute the tfiksclagent TFCB workspace to install the cluster agent in the k8s cluster to automatically instrument the Java services. Check for a sucessful Run before progressing to the next step.
 
-## Step 10: Execute ICO Workflow for App Services Deployment and Instrumentation
+### Step 8: Deploy application registry services 
 
-![alt text](https://github.com/prathjan/images/blob/main/exelegacy.png?raw=true)
+Execute the tfiksteareg TFCB workspace to deploy the application registry service which is a dependency for the other app services. Check for a sucessful Run before progressing to the next step.
 
-You will be prompted for the following data:
+### Step 9: Deploy application services 
 
-![alt text](https://github.com/prathjan/images/blob/main/exeparams.png?raw=true)
+Execute the tfiksteaapp TFCB workspace to deploy the application registry service which is a dependency for the other app services. Check for a sucessful Run before progressing to the next step.
 
-Pick up the Agent Pool ID and token from your TFCB account
+View the application deployment status at:
 
-![alt text](https://github.com/prathjan/images/blob/main/tfcb1.png?raw=true)
+http://<master_node_ip>:30080/tools.descartes.teastore.webui/status
 
-![alt text](https://github.com/prathjan/images/blob/main/tfcb2.png?raw=true)
+![alt text](https://github.com/prathjan/images/blob/main/teastatus.png?raw=true)
 
-## Step 11: Execute ICO Workflow for App Services Load Generation
+View the application at:
 
-![alt text](https://github.com/prathjan/images/blob/main/exeload.png?raw=true)
+http://<master_node_ip>:30080/tools.descartes.teastore.webui/
 
+![alt text](https://github.com/prathjan/images/blob/main/tea.png?raw=true)
 
-## Step 12 View AppDynamics Insights
+
+### Step 9: Generate Application Load
+
+Execute the tfiksload workspace to generate load for the apps deployed
 
 ### View Application Insights in AppDynamics 
 
 Checkout the application insights in AppDynamics:
 
-![alt text](https://github.com/prathjan/images/blob/main/appd2.png?raw=true)
-
-![alt text](https://github.com/prathjan/images/blob/main/appd3.png?raw=true)
+![alt text](https://github.com/prathjan/images/blob/main/appd.png?raw=true)
 
 ### View Application Insights in Intersight
 
 Checkout the infrastructure insights in Intersight:
 
-![alt text](https://github.com/prathjan/images/blob/main/appd4.png?raw=true)
+![alt text](https://github.com/prathjan/images/blob/main/optimize.png?raw=true)
 
 ### Interfacing with AppDynamics Controller API for De-provisioning - Use RBAC script to remove AppDynamics User and license rule
 
-Execute the AppdRemove workspace to remove all the entities created in AppDynamics.
+Execute the tfiksremove workspace to remove all the entities created in AppDynamics.
 
-Due to a known error, you will have to manually delete the MasalaChaiStore application from AppDynamics to complete the cleanup:
+Due to a known error, you will have to manually delete the IKSChaiStore application from AppDynamics to complete the cleanup:
 
-![alt text](https://github.com/prathjan/images/blob/main/appd5.png?raw=true)
+![alt text](https://github.com/prathjan/images/blob/main/appddel.png?raw=true)
             
 ### Undeploy applications and deprovision infrastructure
 
-ICO Workflows do not support deleting TFCB workspaces at this time. So, we will have to terminate and clean up leveraging TFCB.
-
 Destroy the TFCB workspaces in this order:
 
-AppdLoad
+tfiksload
 
-AppdRemove
+tfiksremove
 
-AppdRbac
+tfiksrbac
 
-AppdSaas
+tfiksteaapp
 
-AppdInfra
+tfiksteareg
 
-AppdDb
+tfiksmetrics
+
+tfiksclagent
+
+tfikshost
+
+tfiksglobal
+
