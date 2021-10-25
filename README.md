@@ -47,7 +47,7 @@ This use case addresses the second flow in the below diagram:
 
 ### Pre-requisites
 
-1. The VM template that you provision in Step 5 below will have a user "root/Cisco123" provisioned with sudo privileges. Terraform scripts will use this user credentials to remotely run installation scripts in the VM.
+1. The VM template that you provision in Step 5 below will have a ubuntu image and user "root/Cisco123" provisioned with sudo privileges. Terraform scripts will use this user credentials to remotely run installation scripts in the VM.
 
 2. Sign up for a user account on Intersight.com. You will need Premier license as well as IWO license to complete this use case. 
 
