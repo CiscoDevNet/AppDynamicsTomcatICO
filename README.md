@@ -43,7 +43,7 @@
 
 This use case addresses the second flow in the below diagram:
 
-![alt text](https://github.com/prathjan/images/blob/main/AppdTomcat3.png?raw=true)
+![alt text](https://github.com/prathjan/images/blob/main/tomflow2.png?raw=true)
 
 ### Pre-requisites
 
