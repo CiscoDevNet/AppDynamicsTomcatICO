@@ -59,6 +59,31 @@ This use case addresses the second flow in the below diagram:
 
 6. You will need to have some minimal knowledge of Intersight ICO. Please review tutorials on Youtube as well as the following: https://intersight.com/help/saas/features/orchestration/configure#intersight_cloud_orchestrator
 
+7. You have cloned the following git repositories. Keep the repo names as indicated below:
+
+AppdGlobal - https://github.com/CiscoDevNet/AppdGlobal.git
+
+AppdInfra - https://github.com/CiscoDevNet/AppdInfra.git
+
+AppdDb - https://github.com/CiscoDevNet/AppdDb.git
+
+AppdSaas - https://github.com/CiscoDevNet/AppdSaas.git
+
+AppdRbac - https://github.com/CiscoDevNet/AppdRbac.git
+
+AppdApp - https://github.com/CiscoDevNet/AppdApp.git
+
+AppdLoad - https://github.com/CiscoDevNet/AppdLoad.git
+
+8. You have created the VCS provider for the VCS that hosts your above repos:
+
+![alt text](https://github.com/prathjan/images/blob/main/vcs.png?raw=true)
+
+9. You have the TF agent pool ID:
+
+![alt text](https://github.com/prathjan/images/blob/main/tfid.png?raw=true)
+
+
 ### Intersight Target configuration for AppDynamics and on prem entities
 
 You will log into your Intersight account and create the following targets. Please refer to Intersight docs for details on how to create these Targets:
@@ -177,7 +202,7 @@ Open Orchestration-> UpdateLegacyVars->Add AppdGlobal Variables Sensitive Task:
 
 Add the following variables, TBD's will be as it applies to your own specific environment:
 
-root_password - TBD
+root_password - use "root"
 
 mysql_pass - TBD
 
@@ -291,11 +316,23 @@ You will be prompted for the following data:
 
 ![alt text](https://github.com/prathjan/images/blob/main/exeparams.png?raw=true)
 
+Scroll down and enter your github repo ID's:
+
+![alt text](https://github.com/prathjan/images/blob/main/repos.png?raw=true)
+
 Pick up the Agent Pool ID and token from your TFCB account
 
 ![alt text](https://github.com/prathjan/images/blob/main/tfcb1.png?raw=true)
 
 ![alt text](https://github.com/prathjan/images/blob/main/tfcb2.png?raw=true)
+
+Wait for execution to complete successfully:
+
+![alt text](https://github.com/prathjan/images/blob/main/legcomplete.png?raw=true)
+
+Access application access with VM IP:
+
+![alt text](https://github.com/prathjan/images/blob/main/legapp.png?raw=true)
 
 ## Step 11: Execute ICO Workflow for App Services Load Generation
 
