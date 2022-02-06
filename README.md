@@ -316,15 +316,15 @@ You will be prompted for the following data:
 
 ![alt text](https://github.com/prathjan/images/blob/main/exeparams.png?raw=true)
 
-Scroll down and enter your github repo ID's:
-
-![alt text](https://github.com/prathjan/images/blob/main/repos.png?raw=true)
-
 Pick up the Agent Pool ID and token from your TFCB account
 
 ![alt text](https://github.com/prathjan/images/blob/main/tfcb1.png?raw=true)
 
 ![alt text](https://github.com/prathjan/images/blob/main/tfcb2.png?raw=true)
+
+Scroll down and enter your github repo ID's:
+
+![alt text](https://github.com/prathjan/images/blob/main/repos.png?raw=true)
 
 Wait for execution to complete successfully:
 
