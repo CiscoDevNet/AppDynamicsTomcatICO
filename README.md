@@ -330,7 +330,7 @@ Wait for execution to complete successfully:
 
 ![alt text](https://github.com/prathjan/images/blob/main/legcomplete.png?raw=true)
 
-Access application access with VM IP:
+Access application with VM IP:
 
 ![alt text](https://github.com/prathjan/images/blob/main/legapp.png?raw=true)
 
